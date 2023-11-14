@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Auth;
+namespace Tests\Feature\Api\V1\Auth;
 
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
@@ -23,7 +23,7 @@ class EmailVerificationTest extends TestCase
         Event::fake();
 
         $verificationUrl = URL::temporarySignedRoute(
-            'verification.verify',
+            'api:v1:auth:verification.verify',
             now()->addMinutes(60),
             ['id' => $user->id, 'hash' => sha1($user->email)]
         );
@@ -32,7 +32,8 @@ class EmailVerificationTest extends TestCase
 
         Event::assertDispatched(Verified::class);
         $this->assertTrue($user->fresh()->hasVerifiedEmail());
-        $response->assertRedirect(config('app.frontend_url').RouteServiceProvider::HOME.'?verified=1');
+        $response
+            ->assertRedirect(config('app.frontend_url') . RouteServiceProvider::HOME . '?verified=1');
     }
 
     public function test_email_is_not_verified_with_invalid_hash(): void
@@ -42,7 +43,7 @@ class EmailVerificationTest extends TestCase
         ]);
 
         $verificationUrl = URL::temporarySignedRoute(
-            'verification.verify',
+            'api:v1:auth:verification.verify',
             now()->addMinutes(60),
             ['id' => $user->id, 'hash' => sha1('wrong-email')]
         );
@@ -51,4 +52,24 @@ class EmailVerificationTest extends TestCase
 
         $this->assertFalse($user->fresh()->hasVerifiedEmail());
     }
+
+    public function test_redirects_if_user_email_is_verified(): void
+    {
+        $user = User::factory()->create([
+            'email_verified_at' => now(),
+        ]);
+
+        Event::fake();
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'api:v1:auth:verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->email)]
+        );
+
+        $response = $this->actingAs($user)->get($verificationUrl);
+        
+        $response->assertRedirect(config('app.frontend_url') . RouteServiceProvider::HOME . '?verified=1');
+    }
+
 }
