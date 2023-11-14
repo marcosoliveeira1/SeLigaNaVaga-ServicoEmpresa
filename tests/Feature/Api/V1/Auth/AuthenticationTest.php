@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Auth;
+namespace Tests\Feature\Api\V1\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,20 +14,32 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->post('/login', [
+        $response = $this->post(route('api:v1:auth:login'), [
             'email' => $user->email,
             'password' => 'password',
         ]);
 
         $this->assertAuthenticated();
-        $response->assertNoContent();
+        $response
+            ->assertOk()
+            ->assertJsonStructure([
+                'access_token',
+                'token_type',
+                'expires_in',
+            ]);
+
+        $this->assertDatabaseHas('personal_access_tokens', [
+            'tokenable_id' => $user->id,
+            'name' => 'authToken',
+        ]);
+
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {
         $user = User::factory()->create();
 
-        $this->post('/login', [
+        $this->post(route('api:v1:auth:login'), [
             'email' => $user->email,
             'password' => 'wrong-password',
         ]);
@@ -39,7 +51,7 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->post('/logout');
+        $response = $this->actingAs($user)->post(route('api:v1:auth:logout'));
 
         $this->assertGuest();
         $response->assertNoContent();

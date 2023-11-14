@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Auth;
+namespace Tests\Feature\Api\V1\Auth;
 
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -18,7 +18,7 @@ class PasswordResetTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->post('/forgot-password', ['email' => $user->email]);
+        $this->post(route('api:v1:auth:password.email'), ['email' => $user->email]);
 
         Notification::assertSentTo($user, ResetPassword::class);
     }
@@ -29,7 +29,7 @@ class PasswordResetTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->post('/forgot-password', ['email' => $user->email]);
+        $this->post(route('api:v1:auth:password.email'), ['email' => $user->email]);
 
         Notification::assertSentTo($user, ResetPassword::class, function (object $notification) use ($user) {
             $response = $this->post('/reset-password', [
