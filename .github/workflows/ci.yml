@@ -1,0 +1,33 @@
+name: PHP CI
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4' # Adjust the PHP version as needed
+          extensions: 'pdo,mbstring,tokenizer'
+
+      - name: Install Composer Dependencies
+        run: composer install
+
+      - name: Run PHPStan
+        run: ./vendor/bin/phpstan analyze
+
+      - name: Run PHP_CodeSniffer
+        run: ./vendor/bin/phpcs --standard=PSR12 --extensions=php app
+
+      - name: Run PHPUnit Tests
+        run: ./vendor/bin/phpunit
