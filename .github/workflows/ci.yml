@@ -64,4 +64,4 @@ jobs:
       - name: Text minimum coverage
         run: |
           ./vendor/bin/phpunit --coverage-clover clover.xml
-          ./vendor/bin/coverage-check clover.xml 60
+          ./vendor/bin/coverage-check clover.xml 80
