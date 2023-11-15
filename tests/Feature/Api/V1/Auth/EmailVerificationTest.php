@@ -68,7 +68,7 @@ class EmailVerificationTest extends TestCase
         );
 
         $response = $this->actingAs($user)->get($verificationUrl);
-        
+
         $response->assertRedirect(config('app.frontend_url') . RouteServiceProvider::HOME . '?verified=1');
     }
 
