@@ -1,5 +1,5 @@
 # GitHub Action for Laravel with MySQL and Redis
-name: Testing Laravel with MySQL
+name: Testing Laravel
 
 on:
   pull_request:
@@ -11,14 +11,6 @@ jobs:
   laravel:
     name: Laravel (PHP ${{ matrix.php-versions }})
     runs-on: ubuntu-latest
-    env:
-      DB_DATABASE: laravel
-      DB_USERNAME: root
-      DB_PASSWORD: password
-      BROADCAST_DRIVER: log
-      CACHE_DRIVER: redis
-      QUEUE_CONNECTION: redis
-      SESSION_DRIVER: redis
 
     strategy:
       fail-fast: false
